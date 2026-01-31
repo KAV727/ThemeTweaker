@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Theme Color Tweaker</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="bg"></div>
+    <main class="app">
+      <header class="hero">
+        <div class="hero-title">
+          <h1>Theme Color Tweaker</h1>
+          <p>Edit DankMaterialShell theme colors and save to file.</p>
+        </div>
+        <div class="actions">
+          <button id="reload" class="ghost">Reload</button>
+          <button id="undo" class="ghost" disabled>Undo</button>
+          <button id="save" class="primary">Save</button>
+          <span id="status" class="status"></span>
+        </div>
+      </header>
+
+      <section class="card controls">
+        <div class="controls-row">
+          <div class="field">
+            <label for="theme-path">Theme file path</label>
+            <input id="theme-path" type="text" spellcheck="false" />
+          </div>
+          <div class="controls-actions">
+            <button id="theme-path-apply" class="ghost" type="button">Load Path</button>
+            <label class="toggle">
+              <input id="ui-theme-toggle" type="checkbox" />
+              <span>Dark UI</span>
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Metadata</h2>
+        <div class="grid" id="meta"></div>
+      </section>
+
+      <section class="card">
+        <div class="columns">
+          <div>
+            <h2>Dark Colors</h2>
+            <div class="list" id="dark-list"></div>
+          </div>
+          <div>
+            <h2>Light Colors</h2>
+            <div class="list" id="light-list"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="picker" class="picker hidden" aria-hidden="true">
+      <div class="picker-card">
+        <div class="picker-header">
+          <div>
+            <strong id="picker-title">Color Picker</strong>
+            <small id="picker-sub">token</small>
+          </div>
+          <button id="picker-close" class="ghost">Close</button>
+        </div>
+
+        <div class="picker-body">
+          <div class="picker-preview" id="picker-preview"></div>
+          <div class="picker-inputs">
+            <label for="picker-hex">Hex</label>
+            <input id="picker-hex" type="text" value="#000000" />
+
+            <div class="picker-actions">
+              <button id="picker-native" class="ghost" type="button">Color Wheel</button>
+              <input id="picker-native-input" type="color" value="#000000" />
+            </div>
+
+            <div class="slider">
+              <label for="picker-h">Hue</label>
+              <input id="picker-h" type="range" min="0" max="360" value="0" />
+              <span id="picker-hv">0</span>
+            </div>
+            <div class="slider">
+              <label for="picker-s">Saturation</label>
+              <input id="picker-s" type="range" min="0" max="100" value="0" />
+              <span id="picker-sv">0</span>
+            </div>
+            <div class="slider">
+              <label for="picker-l">Lightness</label>
+              <input id="picker-l" type="range" min="0" max="100" value="0" />
+              <span id="picker-lv">0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="picker-harmony">
+          <div class="preset-row">
+            <span>Shades</span>
+          </div>
+          <div class="preset-grid" id="harmony-grid"></div>
+        </div>
+
+        <div class="picker-presets">
+          <div class="preset-row">
+            <span>Presets</span>
+            <button id="preset-add" class="ghost">Add</button>
+          </div>
+          <div class="preset-grid" id="preset-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
