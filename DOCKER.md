@@ -7,10 +7,16 @@ docker build -t theme-color-tweaker .
 
 ## Run (mount a theme.json)
 ```
-docker run --rm -p 8000:8000   -v "/home/atlas/.config/DankMaterialShell/themes/KAV THEME/theme.json:/theme.json"   theme-color-tweaker   --path /theme.json
+docker run --rm -P   -v "/path/to/your/theme.json:/theme.json"   theme-color-tweaker   --path /theme.json
 ```
 
-Then open: http://localhost:8000
+Then open: http://localhost:<random_port>
+
+## Find the random port
+```
+docker ps
+```
+Look under **PORTS** (e.g. `0.0.0.0:49154->8000/tcp`).
 
 ## Notes
 - The app writes backups next to the mounted file in the container path.

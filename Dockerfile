@@ -7,4 +7,5 @@ COPY style.css /app/style.css
 COPY app.js /app/app.js
 
 EXPOSE 8000
-CMD ["python", "/app/server.py", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["python", "/app/server.py"]
+CMD ["--host", "0.0.0.0", "--port", "8000"]
