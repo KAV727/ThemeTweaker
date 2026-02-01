@@ -39,6 +39,12 @@ const undoBtn = document.querySelector("#undo");
 const pathInput = document.querySelector("#theme-path");
 const pathApplyBtn = document.querySelector("#theme-path-apply");
 const uiThemeToggle = document.querySelector("#ui-theme-toggle");
+const uploadInput = document.querySelector("#theme-upload");
+const uploadBtn = document.querySelector("#theme-upload-btn");
+const scanBtn = document.querySelector("#theme-scan");
+const themeSearchInput = document.querySelector("#theme-search");
+const themeListEl = document.querySelector("#theme-list");
+
 
 const pickerEl = document.querySelector("#picker");
 const pickerTitle = document.querySelector("#picker-title");
@@ -150,6 +156,76 @@ const hslToRgb = ({ h, s, l }) => {
 const setStatus = (text, tone = "") => {
   statusEl.textContent = text;
   statusEl.dataset.tone = tone;
+};
+
+let themeCandidates = [];
+let pendingUploadFile = null;
+
+const renderThemeList = () => {
+  if (!themeListEl) return;
+  const filter = (themeSearchInput?.value || "").toLowerCase();
+  const list = themeCandidates.filter((p) => p.toLowerCase().includes(filter));
+  themeListEl.innerHTML = "";
+  list.forEach((path) => {
+    const item = document.createElement("div");
+    item.className = "theme-item";
+
+    const title = document.createElement("strong");
+    title.textContent = path.split("/").slice(-2).join("/") || path;
+
+    const small = document.createElement("small");
+    small.textContent = path;
+
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "primary";
+    btn.textContent = "Load";
+    btn.addEventListener("click", async () => {
+      if (pathInput) pathInput.value = path;
+      await setPath();
+    });
+
+    item.append(title, small, btn);
+    themeListEl.appendChild(item);
+  });
+};
+
+const scanThemes = async () => {
+  setStatus("Scanning themes...", "warn");
+  const res = await fetch("/api/themes");
+  if (!res.ok) {
+    setStatus("Scan failed", "error");
+    return;
+  }
+  const data = await res.json();
+  themeCandidates = Array.isArray(data.themes) ? data.themes : [];
+  renderThemeList();
+  setStatus(`Found ${themeCandidates.length} themes`, "ok");
+};
+
+const uploadTheme = async (file) => {
+  if (!file) return;
+  setStatus("Uploading...", "warn");
+  const content = await file.text();
+  const res = await fetch("/api/upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ name: file.name, content }),
+  });
+
+  if (!res.ok) {
+    const msg = await res.text();
+    setStatus(`Upload failed: ${msg}`, "error");
+    return;
+  }
+
+  const data = await res.json();
+  if (pathInput && data.path) {
+    pathInput.value = data.path;
+  }
+  await loadTheme();
+  await scanThemes();
+  setStatus("Uploaded", "ok");
 };
 
 const applyUiTheme = (mode) => {
@@ -545,6 +621,7 @@ const init = async () => {
   initUiTheme();
   await loadPath();
   await loadTheme();
+  await scanThemes();
 };
 
 init();

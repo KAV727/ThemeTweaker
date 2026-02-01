@@ -39,3 +39,17 @@ This uses the host path:
 `/home/atlas/.config/DankMaterialShell/themes/NEW KAV THEME/theme.json`
 
 Change that path in `docker-compose.yml` if your theme file is elsewhere.
+
+## Upload & Scan (inside container)
+By default the app scans `THEME_ROOT` (default `/data`) for `theme.json` files, and uploads are saved under `/data/uploads`.
+
+To persist uploads, mount a host folder to `/data`:
+```
+docker run --rm -P \
+  -v "/path/to/themes:/data" \
+  theme-color-tweaker
+```
+
+Optional env vars:
+- `THEME_ROOT` (default `/data`): where to scan for themes
+- `UPLOAD_DIR` (default `/data/uploads`): where uploaded themes are stored

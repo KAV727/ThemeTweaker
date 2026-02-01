@@ -38,6 +38,28 @@
         </div>
       </section>
 
+      <section class="card sources">
+        <div class="section-head">
+          <h2>Theme Sources</h2>
+          <span class="muted">Upload or scan mounted themes</span>
+        </div>
+        <div class="sources-row">
+          <div class="field">
+            <label for="theme-upload">Upload theme.json</label>
+            <input id="theme-upload" type="file" accept=".json,application/json" />
+          </div>
+          <div class="sources-actions">
+            <button id="theme-upload-btn" class="primary" type="button">Upload</button>
+            <button id="theme-scan" class="ghost" type="button">Scan</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="theme-search">Filter</label>
+          <input id="theme-search" type="text" placeholder="Search paths..." />
+        </div>
+        <div id="theme-list" class="theme-list"></div>
+      </section>
+
       <section class="card">
         <h2>Metadata</h2>
         <div class="grid" id="meta"></div>
