@@ -9,7 +9,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 import time
 
-DEFAULT_THEME_PATH = "/home/atlas/.config/DankMaterialShell/themes/KAV THEME/theme.json"
+DEFAULT_THEME_PATH = os.environ.get("THEME_PATH", "/theme.json")
 
 
 def load_theme(path: Path):

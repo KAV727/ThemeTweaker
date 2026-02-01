@@ -21,3 +21,11 @@ Look under **PORTS** (e.g. `0.0.0.0:49154->8000/tcp`).
 ## Notes
 - The app writes backups next to the mounted file in the container path.
 - You can point to any theme.json by changing the -v mount and --path.
+
+## Optional: set THEME_PATH env var
+```
+docker run --rm -P \
+  -e THEME_PATH=/theme.json \
+  -v "/path/to/your/theme.json:/theme.json" \
+  theme-color-tweaker
+```
