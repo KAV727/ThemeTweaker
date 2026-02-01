@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  theme-tweaker:
+    build: .
+    container_name: theme-color-tweaker
+    ports:
+      - "8000:8000"
+    environment:
+      - THEME_PATH=/theme.json
+    volumes:
+      - "/home/atlas/.config/DankMaterialShell/themes/NEW KAV THEME/theme.json:/theme.json"
+    restart: unless-stopped

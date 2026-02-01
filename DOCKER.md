@@ -29,3 +29,13 @@ docker run --rm -P \
   -v "/path/to/your/theme.json:/theme.json" \
   theme-color-tweaker
 ```
+
+## Docker Compose (fixed path)
+```
+docker compose up -d --build
+```
+
+This uses the host path:
+`/home/atlas/.config/DankMaterialShell/themes/NEW KAV THEME/theme.json`
+
+Change that path in `docker-compose.yml` if your theme file is elsewhere.
