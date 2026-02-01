@@ -178,8 +178,7 @@ class ThemeHandler(BaseHTTPRequestHandler):
                 dest_dir = self.server.upload_dir / f"{folder}-{ts}"
                 dest_dir.mkdir(parents=True, exist_ok=True)
                 dest = dest_dir / "theme.json"
-                dest.write_text(json.dumps(data, indent=2) + "
-", encoding="utf-8")
+                dest.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
                 self.server.theme_path = dest
             except Exception as e:
