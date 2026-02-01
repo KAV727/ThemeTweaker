@@ -53,3 +53,16 @@ docker run --rm -P \
 Optional env vars:
 - `THEME_ROOT` (default `/data`): where to scan for themes
 - `UPLOAD_DIR` (default `/data/uploads`): where uploaded themes are stored
+
+## Hosting mode (no fixed path)
+This image is designed for hosting: users upload theme.json files, edit them, and download the result.
+Uploads are stored under `/data/uploads` in the container.
+
+Run with a persistent data folder:
+```
+docker run --rm -P \
+  -v "/path/to/data:/data" \
+  theme-color-tweaker
+```
+
+If you don't mount `/data`, uploads are lost when the container stops.

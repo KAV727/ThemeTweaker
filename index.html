@@ -12,33 +12,18 @@
       <header class="hero">
         <div class="hero-title">
           <h1>Theme Color Tweaker</h1>
-          <p>Edit DankMaterialShell theme colors and save to file.</p>
+          <p>Upload any DankMaterialShell theme.json, tweak colors, then download.</p>
         </div>
         <div class="actions">
           <button id="reload" class="ghost">Reload</button>
           <button id="undo" class="ghost" disabled>Undo</button>
           <button id="save" class="primary">Save</button>
+          <button id="download" class="ghost">Download</button>
           <span id="status" class="status"></span>
         </div>
       </header>
 
-      <section class="card controls">
-        <div class="controls-row">
-          <div class="field">
-            <label for="theme-path">Theme file path</label>
-            <input id="theme-path" type="text" spellcheck="false" />
-          </div>
-          <div class="controls-actions">
-            <button id="theme-path-apply" class="ghost" type="button">Load Path</button>
-            <label class="toggle">
-              <input id="ui-theme-toggle" type="checkbox" />
-              <span>Dark UI</span>
-            </label>
-          </div>
-        </div>
-      </section>
-
-      <section class="card sources">
+            <section class="card sources">
         <div class="section-head">
           <h2>Theme Sources</h2>
           <span class="muted">Upload or scan mounted themes</span>

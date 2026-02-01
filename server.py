@@ -14,16 +14,23 @@ def resolve_default_theme_path():
     env_path = os.environ.get("THEME_PATH")
     if env_path:
         return env_path
-    local = "/home/atlas/.config/DankMaterialShell/themes/KAV THEME/theme.json"
-    if Path(local).exists():
-        return local
-    return "/theme.json"
+    return ""
 
 
 DEFAULT_THEME_PATH = resolve_default_theme_path()
 
+def get_theme_path(path_str: str):
+    if not path_str:
+        return None
+    path = Path(path_str).expanduser()
+    return path
+
+
+
 
 def load_theme(path: Path):
+    if path is None:
+        raise FileNotFoundError("No theme loaded")
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -84,6 +91,9 @@ class ThemeHandler(BaseHTTPRequestHandler):
         if parsed.path == "/api/theme":
             try:
                 data = load_theme(self.server.theme_path)
+            except FileNotFoundError as e:
+                self._send(HTTPStatus.NOT_FOUND, str(e).encode("utf-8"))
+                return
             except Exception as e:
                 self._send(HTTPStatus.INTERNAL_SERVER_ERROR, str(e).encode("utf-8"))
                 return
@@ -92,7 +102,17 @@ class ThemeHandler(BaseHTTPRequestHandler):
             return
 
         if parsed.path == "/api/path":
-            body = json.dumps({"path": str(self.server.theme_path)}).encode("utf-8")
+            body = json.dumps({"path": str(self.server.theme_path) if self.server.theme_path else ""}).encode("utf-8")
+            self._send(HTTPStatus.OK, body, "application/json; charset=utf-8")
+            return
+
+        if parsed.path == "/api/download":
+            try:
+                data = load_theme(self.server.theme_path)
+            except FileNotFoundError as e:
+                self._send(HTTPStatus.NOT_FOUND, str(e).encode("utf-8"))
+                return
+            body = json.dumps(data, indent=2).encode("utf-8")
             self._send(HTTPStatus.OK, body, "application/json; charset=utf-8")
             return
 
@@ -102,7 +122,7 @@ class ThemeHandler(BaseHTTPRequestHandler):
             if self.server.upload_dir != self.server.theme_root:
                 themes.extend(find_theme_files(self.server.upload_dir))
             # Ensure current theme is visible
-            if str(self.server.theme_path) not in themes:
+            if self.server.theme_path and str(self.server.theme_path) not in themes:
                 themes.insert(0, str(self.server.theme_path))
             body = json.dumps({"themes": themes}).encode("utf-8")
             self._send(HTTPStatus.OK, body, "application/json; charset=utf-8")
@@ -195,7 +215,7 @@ class ThemeHandler(BaseHTTPRequestHandler):
 class ThemeServer(HTTPServer):
     def __init__(self, server_address, RequestHandlerClass, theme_path: Path, web_root: Path, theme_root: Path, upload_dir: Path):
         super().__init__(server_address, RequestHandlerClass)
-        self.theme_path = theme_path
+        self.theme_path = theme_path if theme_path else None
         self.web_root = web_root
         self.theme_root = theme_root
         self.upload_dir = upload_dir
@@ -210,7 +230,7 @@ def main():
     parser.add_argument("--port", type=int, default=8000, help="Port to bind")
     args = parser.parse_args()
 
-    theme_path = Path(args.path).expanduser()
+    theme_path = Path(args.path).expanduser() if args.path else None
     web_root = Path(__file__).resolve().parent
     theme_root = Path(args.theme_root).expanduser()
     upload_dir = Path(args.upload_dir).expanduser() if args.upload_dir else theme_root / "uploads"

@@ -36,9 +36,8 @@ const darkList = document.querySelector("#dark-list");
 const lightList = document.querySelector("#light-list");
 const statusEl = document.querySelector("#status");
 const undoBtn = document.querySelector("#undo");
-const pathInput = document.querySelector("#theme-path");
-const pathApplyBtn = document.querySelector("#theme-path-apply");
 const uiThemeToggle = document.querySelector("#ui-theme-toggle");
+const downloadBtn = document.querySelector("#download");
 const uploadInput = document.querySelector("#theme-upload");
 const uploadBtn = document.querySelector("#theme-upload-btn");
 const scanBtn = document.querySelector("#theme-scan");
@@ -181,8 +180,18 @@ const renderThemeList = () => {
     btn.className = "primary";
     btn.textContent = "Load";
     btn.addEventListener("click", async () => {
-      if (pathInput) pathInput.value = path;
-      await setPath();
+      const res = await fetch("/api/path", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path }),
+      });
+      if (!res.ok) {
+        const msg = await res.text();
+        setStatus(`Path error: ${msg}`, "error");
+        return;
+      }
+      await loadTheme();
+      setStatus("Theme loaded", "ok");
     });
 
     item.append(title, small, btn);
@@ -219,13 +228,30 @@ const uploadTheme = async (file) => {
     return;
   }
 
-  const data = await res.json();
-  if (pathInput && data.path) {
-    pathInput.value = data.path;
-  }
   await loadTheme();
   await scanThemes();
   setStatus("Uploaded", "ok");
+};
+
+const downloadTheme = async () => {
+  setStatus("Preparing download...", "warn");
+  const res = await fetch("/api/download");
+  if (!res.ok) {
+    const msg = await res.text();
+    setStatus(`Download failed: ${msg}`, "error");
+    return;
+  }
+  const data = await res.json();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${data.id || "theme"}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  setStatus("Downloaded", "ok");
 };
 
 const applyUiTheme = (mode) => {
@@ -240,40 +266,6 @@ const applyUiTheme = (mode) => {
 const initUiTheme = () => {
   const stored = localStorage.getItem("uiTheme") || "light";
   applyUiTheme(stored);
-};
-
-const loadPath = async () => {
-  if (!pathInput) return;
-  const res = await fetch("/api/path");
-  if (!res.ok) {
-    setStatus("Failed to load path", "error");
-    return;
-  }
-  const data = await res.json();
-  pathInput.value = data.path || "";
-};
-
-const setPath = async () => {
-  if (!pathInput) return;
-  const value = pathInput.value.trim();
-  if (!value) return;
-  setStatus("Switching path...", "warn");
-  const res = await fetch("/api/path", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ path: value }),
-  });
-
-  if (!res.ok) {
-    const msg = await res.text();
-    setStatus(`Path error: ${msg}`, "error");
-    return;
-  }
-
-  const data = await res.json();
-  pathInput.value = data.path || value;
-  await loadTheme();
-  setStatus("Path loaded", "ok");
 };
 
 const updateUndoButton = () => {
@@ -409,7 +401,11 @@ const loadTheme = async () => {
   setStatus("Loading...");
   const res = await fetch("/api/theme");
   if (!res.ok) {
-    setStatus("Failed to load theme", "error");
+    if (res.status === 404) {
+      setStatus("Upload a theme to start", "warn");
+    } else {
+      setStatus("Failed to load theme", "error");
+    }
     return;
   }
   const data = await res.json();
@@ -605,21 +601,37 @@ if (uiThemeToggle) {
   });
 }
 
-if (pathApplyBtn) {
-  pathApplyBtn.addEventListener("click", setPath);
+
+if (uploadInput) {
+  uploadInput.addEventListener("change", () => {
+    pendingUploadFile = uploadInput.files?.[0] || null;
+  });
 }
 
-if (pathInput) {
-  pathInput.addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      setPath();
+if (uploadBtn) {
+  uploadBtn.addEventListener("click", () => {
+    if (!pendingUploadFile) {
+      setStatus("Pick a file first", "warn");
+      return;
     }
+    uploadTheme(pendingUploadFile);
   });
+}
+
+if (scanBtn) {
+  scanBtn.addEventListener("click", scanThemes);
+}
+
+if (themeSearchInput) {
+  themeSearchInput.addEventListener("input", renderThemeList);
+}
+
+if (downloadBtn) {
+  downloadBtn.addEventListener("click", downloadTheme);
 }
 
 const init = async () => {
   initUiTheme();
-  await loadPath();
   await loadTheme();
   await scanThemes();
 };
